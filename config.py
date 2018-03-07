@@ -7,6 +7,8 @@ class Config:
 	FLASKY_MAIL_SUBJECT_PREFIX = '[Flasky]'
 	FLASKY_MAIL_SENDER = 'zyk <xiaozhangchiren@sina.com>'
 	FLASKY_ADMIN = '1019437875@qq.com'	#os.environ.get('FLAKSY_ADMIN')
+	MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
+	MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
 	FLASKY_POSTS_PERPAGE = 20
 	FLASKY_FOLLOWERS_PER_PAGE = 50
 	FLASKY_COMMENTS_PER_PAGE = 30
@@ -23,8 +25,7 @@ class DevelopmentConfig(Config):
 	MAIL_SERVER = 'smtp.sina.com'
 	MAIL_PORT = 25
 	MAIL_USE_TLS = True
-	MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
-	MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
+	
 	SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
 							'sqlite:///' + os.path.join(basedir,'data-dev.sqlite')
 
@@ -59,11 +60,22 @@ class ProductionConfig(Config):
 		mail_handler.setLevel(logging.ERROR)
 		app.logger.addHandler(mail_handler)
 
+class HerokuConfig(ProductionConfig):
+	@classmethod
+	def init_app(cls, app):
+		ProductionConfig.init_app(app)
+		# 输出到stderr
+		import logging
+		from logging import StreamHandler
+		file_handler = StreamHandler()
+		file_handler.setLevel(logging.WARNING)
+		app.logger.addHandler(file_handler)
 
 config = {
 	'development': DevelopmentConfig,
 	'testing': TestingConfig,
 	'production': ProductionConfig,
+	'heroku': HerokuConfig,
 
 	'default': DevelopmentConfig
 }
