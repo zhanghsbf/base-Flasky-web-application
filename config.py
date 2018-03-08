@@ -15,6 +15,9 @@ class Config:
 	FLASKY_SLOW_DB_QUERY_TIME = 0.5
 	SQLALCHEMY_RECORD_QUERIES = True
 	SSL_DISABLE = True
+	MAIL_SERVER = 'smtp.sina.com'
+	MAIL_PORT = 25
+	MAIL_USE_TLS = True
 	
 	@staticmethod
 	def init_app(app):
@@ -23,9 +26,7 @@ class Config:
 # 使用不同的数据库
 class DevelopmentConfig(Config):
 	DEBUG = True
-	MAIL_SERVER = 'smtp.sina.com'
-	MAIL_PORT = 25
-	MAIL_USE_TLS = True
+
 	
 	SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
 							'sqlite:///' + os.path.join(basedir,'data-dev.sqlite')
@@ -66,7 +67,7 @@ class HerokuConfig(ProductionConfig):
 
 	@classmethod
 	def init_app(cls, app):
-		ProductionConfig.init_app(app)
+		ProductionConfig.init_app(cls,app)
 
 		# handle reverse proxy server headers
 		from werkzeug.contrib.fixers import ProxyFix
